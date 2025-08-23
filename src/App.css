@@ -1,0 +1,136 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-hisl-dark: #0a0a0f;
+  --color-hisl-primary: #00ffff;
+  --color-hisl-secondary: #0a4166;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #0a0a0f;
+  --foreground: #f5f5f5;
+  --card: #1a1a2e;
+  --card-foreground: #f5f5f5;
+  --popover: #1a1a2e;
+  --popover-foreground: #f5f5f5;
+  --primary: #00ffff;
+  --primary-foreground: #0a0a0f;
+  --secondary: #0a4166;
+  --secondary-foreground: #f5f5f5;
+  --muted: #2a2a3e;
+  --muted-foreground: #a0a0a0;
+  --accent: #00ffff;
+  --accent-foreground: #0a0a0f;
+  --destructive: #ff4444;
+  --border: #333;
+  --input: #2a2a3e;
+  --ring: #00ffff;
+  --chart-1: #00ffff;
+  --chart-2: #0a4166;
+  --chart-3: #ff4444;
+  --chart-4: #44ff44;
+  --chart-5: #ffff44;
+  --sidebar: #1a1a2e;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #00ffff;
+  --sidebar-primary-foreground: #0a0a0f;
+  --sidebar-accent: #0a4166;
+  --sidebar-accent-foreground: #f5f5f5;
+  --sidebar-border: #333;
+  --sidebar-ring: #00ffff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-hisl-dark text-foreground font-mono;
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom HISL styles */
+.hisl-gradient {
+  background: linear-gradient(135deg, #0a0a0f 0%, #0a4166 50%, #00ffff 100%);
+}
+
+.hisl-text-glow {
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+}
+
+.hisl-border-glow {
+  border: 1px solid #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.bridge-overlay {
+  background-image: url('./assets/AI_Construction_Bridge_banner.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.15;
+}
+
+.scrolling-bg {
+  animation: scroll-bg 20s linear infinite;
+}
+
+@keyframes scroll-bg {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 0%; }
+}
+
+.pulse-animation {
+  animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from {
+    box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
+  }
+  to {
+    box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+  }
+}
+
