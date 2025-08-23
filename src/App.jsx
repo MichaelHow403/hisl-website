@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
-import HeroSection from './components/HeroSection'
-import InteractiveGlobe from './components/InteractiveGlobe'
+import EnhancedHeroSection from './components/EnhancedHeroSection'
 import AgentFleet from './components/AgentFleet'
 import Footer from './components/Footer'
 import ProjectsHub from './components/ProjectsHub'
@@ -13,8 +12,7 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-hisl-dark text-foreground">
       <Header />
-      <HeroSection />
-      <InteractiveGlobe />
+      <EnhancedHeroSection />
       <AgentFleet />
       <Footer />
     </div>
