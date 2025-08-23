@@ -141,7 +141,7 @@ export default function AboutPage() {
 
               <div className="flex space-x-4 pt-4">
                 <a 
-                  href="https://www.linkedin.com/in/YOUR-HANDLE" 
+                  href="https://www.linkedin.com/in/michaelhowardmciob" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -149,7 +149,7 @@ export default function AboutPage() {
                   LinkedIn
                 </a>
                 <a 
-                  href="https://YOUR-SUBSTACK.substack.com" 
+                  href="https://substack.com/@michaelhowardmciob" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
@@ -157,7 +157,7 @@ export default function AboutPage() {
                   Substack
                 </a>
                 <a 
-                  href="mailto:contact@hisl.ai"
+                  href="mailto:michael.howard@hisl.ie"
                   className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   Email

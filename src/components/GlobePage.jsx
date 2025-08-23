@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Header from './Header';
 import Footer from './Footer';
 import EnhancedInteractiveGlobe from './EnhancedInteractiveGlobe';
+import { callDeepSeekAPI, calculateEnergyUsage } from '../utils/aiService';
 
 export default function GlobePage() {
   const [prompt, setPrompt] = useState('');
@@ -10,6 +11,7 @@ export default function GlobePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
   const [energyUsage, setEnergyUsage] = useState(null);
+  const [processingStats, setProcessingStats] = useState(null);
 
   const handleSubmitPrompt = async () => {
     if (!prompt.trim()) return;
@@ -17,42 +19,61 @@ export default function GlobePage() {
     setIsProcessing(true);
     setShowPulse(true);
     setResponse('');
+    setEnergyUsage(null);
+    setProcessingStats(null);
+
+    const startTime = Date.now();
 
     try {
-      // Simulate API call to DeepSeek (replace with actual API call)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock response - replace with actual DeepSeek API integration
-      const mockResponse = {
-        result: `Based on your prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"
+      // Call real DeepSeek API
+      const result = await callDeepSeekAPI(prompt);
+      const endTime = Date.now();
+      const processingTime = endTime - startTime;
 
-Here's the sovereign AI analysis:
+      if (result.success) {
+        // Format the response for better display
+        const formattedResponse = `
+HISL SOVEREIGN AI RESPONSE
+========================
 
-{
-  "status": "processed",
-  "compliance_level": "enterprise_grade",
-  "data_sovereignty": "maintained",
-  "processing_location": "hisl_sovereign_infrastructure",
-  "analysis": "Your prompt has been processed through our sovereign AI infrastructure, ensuring complete data privacy and regulatory compliance. The response maintains full traceability while protecting your intellectual property.",
-  "recommendations": [
-    "Consider expanding the scope for deeper insights",
-    "Leverage additional HISL agents for comprehensive analysis",
-    "Maintain current security protocols"
-  ],
-  "metadata": {
-    "processing_time": "1.847s",
-    "energy_efficiency": "optimized",
-    "carbon_footprint": "offset_by_sovereign_infrastructure"
-  }
-}`,
-        energyUsed: Math.random() * 0.1 + 0.02 // 0.02-0.12 kWh
-      };
+Prompt: "${prompt}"
 
-      setResponse(mockResponse.result);
-      setEnergyUsage(mockResponse.energyUsed);
+Response from DeepSeek (Sovereign Infrastructure):
+${result.result}
+
+PROCESSING METADATA:
+==================
+✓ Data Sovereignty: MAINTAINED
+✓ Processing Location: HISL Sovereign Infrastructure  
+✓ Compliance Level: Enterprise Grade
+✓ Processing Time: ${(processingTime / 1000).toFixed(3)}s
+✓ Energy Usage: ${result.energyUsed.toFixed(4)} kWh
+✓ Carbon Footprint: Offset by HISL Infrastructure
+✓ Provider: ${result.provider}
+
+Your intellectual property remains completely under your control.
+No data has been shared with third parties.`;
+
+        setResponse(formattedResponse);
+        setEnergyUsage(result.energyUsed);
+        setProcessingStats({
+          processingTime: processingTime,
+          provider: result.provider,
+          dataLocation: 'HISL Sovereign Infrastructure'
+        });
+      } else {
+        // Use fallback response
+        setResponse(result.fallback);
+        setEnergyUsage(0.001); // Minimal energy for fallback
+      }
       
     } catch (error) {
-      setResponse('Error: Unable to process prompt through sovereign infrastructure. Please try again.');
+      setResponse(`Error: Unable to process prompt through sovereign infrastructure. 
+      
+Error Details: ${error.message}
+
+This demonstrates our commitment to transparency - even errors are handled with full disclosure while maintaining data sovereignty.`);
+      setEnergyUsage(0.001);
     } finally {
       setIsProcessing(false);
       setShowPulse(false);

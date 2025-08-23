@@ -45,9 +45,9 @@ export default function Header({ logoVariant = "HISL" }) {
   ];
 
   const externalLinks = [
-    { label: "LinkedIn", url: "https://www.linkedin.com/in/YOUR-HANDLE", icon: "💼" },
-    { label: "Substack", url: "https://YOUR-SUBSTACK.substack.com", icon: "📝" },
-    { label: "Email", url: "mailto:contact@hisl.ai", icon: "✉️" }
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/michaelhowardmciob", icon: "💼" },
+    { label: "Substack", url: "https://substack.com/@michaelhowardmciob", icon: "📝" },
+    { label: "Email", url: "mailto:michael.howard@hisl.ie", icon: "✉️" }
   ];
 
   return (
