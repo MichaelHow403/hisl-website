@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import AgentCard from './AgentCard';
 import AIConstMan from '../assets/AI_CONST_MAN.PNG';
-import { Flask, Shield, Scale, Leaf, Stethoscope, CreditCard, Target, Factory, BookOpen, Building } from 'lucide-react';
+import { FlaskConical, Shield, Scale, Leaf, Stethoscope, CreditCard, Target, Factory, BookOpen, Building } from 'lucide-react';
 
 export default function AgentFleet() {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -11,7 +11,7 @@ export default function AgentFleet() {
     {
       id: 'pharma-ai',
       name: 'PharmaAI',
-      icon: <Flask className="w-6 h-6" />,
+      icon: <FlaskConical className="w-6 h-6" />,
       category: 'healthcare',
       status: 'active',
       description: 'Research co-pilot for drug discovery & trials.',
