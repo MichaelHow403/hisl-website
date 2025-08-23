@@ -1,8 +1,8 @@
 // AI Service utility for real API integrations
 const API_KEYS = {
-  DEEPSEEK: 'sk-3bfecdbb798e441e82899dfabfd39ec6',
-  GEMINI: 'AIzaSyDrpd-J-1pe8gbFTDDV5LQE6mkcygTxIY8',
-  CLAUDE: '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'
+  DEEPSEEK: import.meta.env.VITE_DEEPSEEK_API_KEY,
+  GEMINI: import.meta.env.VITE_GEMINI_API_KEY,
+  CLAUDE: import.meta.env.VITE_CLAUDE_API_KEY
 };
 
 // DeepSeek API integration for Globe page
