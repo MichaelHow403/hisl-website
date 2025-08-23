@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { motion } from 'framer-motion';
 import './App.css';
 
@@ -9,6 +9,7 @@ import Globe from './components/Globe';
 import AgentCard from './components/AgentCard';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
+import DeepSeekChat from './components/DeepSeekChat';
 
 // Agent data
 const agents = [
@@ -115,6 +116,8 @@ Developed through real-world lessons in pharma, construction, and governance, In
 ];
 
 function GlobeSection() {
+  const [showPulse, setShowPulse] = useState(false);
+
   return (
     <section id="globe-section" className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4">
@@ -138,7 +141,7 @@ function GlobeSection() {
             <div className="text-primary font-mono">Loading Globe...</div>
           </div>
         }>
-          <Globe className="mb-8" />
+          <Globe className="mb-8" showPulse={showPulse} />
         </Suspense>
 
         {/* Mythology Explanation */}
@@ -180,18 +183,7 @@ function GlobeSection() {
           viewport={{ once: true }}
           className="max-w-2xl mx-auto mt-12"
         >
-          <div className="flex gap-4">
-            <Input
-              placeholder="Enter your prompt to see the flow..."
-              className="flex-1 font-mono bg-card border-primary/30 focus:border-primary"
-            />
-            <Button className="font-mono glow">
-              Send →
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            Server Status: Dublin ✓ | Jurisdiction: Ireland | Latency: &lt;50ms
-          </p>
+        <DeepSeekChat onPulseChange={setShowPulse} />
         </motion.div>
       </div>
     </section>
