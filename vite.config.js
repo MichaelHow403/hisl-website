@@ -21,5 +21,6 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  assetsInclude: ['**/*.PNG', '**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
 })
 
