@@ -1,17 +1,121 @@
-import React, { useState, useRef, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { useState, useRef, Suspense, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import RealisticEarth from './RealisticEarth';
 import NorseRavens from './NorseRavens';
 import DataCenterOverlay from './DataCenterOverlay';
 import PulseTrail from './PulseTrail';
 import { motion } from 'framer-motion';
+import * as THREE from 'three';
+
+// Error boundary component for WebGL rendering
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-6 bg-red-900/20 rounded-lg border border-red-500/30 text-center">
+          <h3 className="text-xl font-bold text-red-400 mb-2">3D Rendering Error</h3>
+          <p className="text-muted-foreground">
+            There was an issue rendering the 3D globe. Please try refreshing the page or using a different browser.
+          </p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// WebGL detection component
+const WebGLCheck = ({ children }) => {
+  const [hasWebGL, setHasWebGL] = useState(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Check if WebGL is supported
+    try {
+      const canvas = document.createElement('canvas');
+      const supported = !!window.WebGLRenderingContext && 
+        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+      setHasWebGL(supported);
+    } catch (e) {
+      setHasWebGL(false);
+    }
+  }, []);
+
+  if (!isClient) {
+    return <div className="p-6 text-center">Loading globe...</div>;
+  }
+
+  if (hasWebGL === false) {
+    return (
+      <div className="p-6 bg-yellow-900/20 rounded-lg border border-yellow-500/30 text-center">
+        <h3 className="text-xl font-bold text-yellow-400 mb-2">WebGL Not Supported</h3>
+        <p className="text-muted-foreground">
+          Your browser does not support WebGL, which is required to display the 3D globe.
+          Please try updating your browser or use a different browser that supports WebGL.
+        </p>
+      </div>
+    );
+  }
+
+  return children;
+};
+
+// Scene setup component
+const Scene = ({ processingState }) => {
+  // Handle WebGL context loss
+  useEffect(() => {
+    const handleContextLost = (event) => {
+      event.preventDefault();
+      console.warn('WebGL context lost. Trying to restore...');
+    };
+    
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      canvas.addEventListener('webglcontextlost', handleContextLost);
+      return () => {
+        canvas.removeEventListener('webglcontextlost', handleContextLost);
+      };
+    }
+  }, []);
+
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <directionalLight 
+        position={[10, 10, 5]} 
+        intensity={1.2}
+        castShadow={true}
+      />
+      <pointLight position={[-10, -10, -5]} intensity={0.3} color="#4f46e5" />
+      
+      <Stars radius={500} depth={80} count={2000} factor={8} />
+      <RealisticEarth />
+      <NorseRavens />
+      <DataCenterOverlay />
+      {processingState === 'processing' && <PulseTrail />}
+    </>
+  );
+};
 
 const InteractiveGlobe = () => {
   const [selectedPrompt, setSelectedPrompt] = useState('');
   const [processingState, setProcessingState] = useState('idle');
   const [outputLog, setOutputLog] = useState([]);
   const [showTooltip, setShowTooltip] = useState(false);
+  const canvasRef = useRef();
 
   const handlePromptSubmit = async () => {
     if (!selectedPrompt.trim()) return;
@@ -51,8 +155,18 @@ const InteractiveGlobe = () => {
 
   return (
     <div id="globe-section" className="w-full min-h-screen bg-gradient-to-b from-hisl-dark to-black relative overflow-hidden py-20">
+      {/* Background bridge banner overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{
+          backgroundImage: `url(${require('../assets/AI_Construction_Bridge_banner.png')})`,
+          backgroundAttachment: 'fixed',
+          backgroundSize: 'cover'
+        }}
+      />
+      
       {/* Header */}
-      <div className="container mx-auto px-4 mb-16">
+      <div className="container mx-auto px-4 mb-16 relative z-10">
         <div className="text-center">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
@@ -76,7 +190,7 @@ const InteractiveGlobe = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row gap-8">
           
           {/* Left Panel - Output Log */}
@@ -118,44 +232,33 @@ const InteractiveGlobe = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="w-full lg:w-2/4 h-[500px] glass rounded-xl border border-primary/30 relative overflow-hidden"
           >
-            <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-              <Suspense fallback={null}>
-                {/* Enhanced starfield */}
-                <Stars radius={500} depth={80} count={2000} factor={8} />
-                
-                {/* Professional lighting setup */}
-                <ambientLight intensity={0.4} />
-                <directionalLight 
-                  position={[10, 10, 5]} 
-                  intensity={1.2}
-                  castShadow={true}
-                />
-                <pointLight position={[-10, -10, -5]} intensity={0.3} color="#4f46e5" />
-                
-                {/* The Photorealistic Earth */}
-                <RealisticEarth />
-                
-                {/* Norse Ravens - Make them prominent */}
-                <NorseRavens />
-                
-                {/* Data Centers */}
-                <DataCenterOverlay />
-                
-                {/* Pulse Trails when processing */}
-                {processingState === 'processing' && <PulseTrail />}
-                
-                {/* Enhanced camera controls */}
-                <OrbitControls 
-                  enableZoom={true}
-                  enablePan={false}
-                  minDistance={6}
-                  maxDistance={20}
-                  autoRotate={processingState === 'idle'}
-                  autoRotateSpeed={0.3}
-                  dampingFactor={0.05}
-                />
-              </Suspense>
-            </Canvas>
+            <ErrorBoundary>
+              <WebGLCheck>
+                <Canvas 
+                  ref={canvasRef}
+                  camera={{ position: [0, 0, 8], fov: 50 }}
+                  onCreated={({ gl }) => {
+                    gl.setClearColor(new THREE.Color('#020617'));
+                    gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                    gl.outputEncoding = THREE.sRGBEncoding;
+                  }}
+                  dpr={[1, 2]} // Optimize for different pixel ratios
+                >
+                  <Suspense fallback={null}>
+                    <Scene processingState={processingState} />
+                    <OrbitControls 
+                      enableZoom={true}
+                      enablePan={false}
+                      minDistance={6}
+                      maxDistance={20}
+                      autoRotate={processingState === 'idle'}
+                      autoRotateSpeed={0.3}
+                      dampingFactor={0.05}
+                    />
+                  </Suspense>
+                </Canvas>
+              </WebGLCheck>
+            </ErrorBoundary>
             
             {/* Norse Mythology Tooltip - Enhanced */}
             <div 

@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import React, { useRef, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import earthDayMap from '../assets/earth_daymap.jpg';
@@ -7,11 +7,24 @@ import earthDayMap from '../assets/earth_daymap.jpg';
 export default function RealisticEarth() {
   const earthRef = useRef();
   const cloudsRef = useRef();
+  const { gl } = useThree();
   
-  // Load earth texture
+  // Set up WebGL renderer for better compatibility
+  useEffect(() => {
+    if (gl) {
+      gl.setClearColor(new THREE.Color('#020617'));
+      gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      
+      // Enable WebGL extensions for better performance
+      gl.getContext().getExtension('OES_standard_derivatives');
+      gl.getContext().getExtension('EXT_shader_texture_lod');
+    }
+  }, [gl]);
+  
+  // Load earth texture with error handling
   const earthTexture = useTexture(earthDayMap);
   
-  // Create materials
+  // Create materials with better performance settings
   const earthMaterial = new THREE.MeshPhongMaterial({
     map: earthTexture,
     bumpMap: earthTexture,
@@ -28,8 +41,8 @@ export default function RealisticEarth() {
     wireframe: true
   });
 
-  // Slow rotation animation
-  useFrame(() => {
+  // Optimized rotation animation
+  useFrame((state) => {
     if (earthRef.current) {
       earthRef.current.rotation.y += 0.001;
     }
@@ -41,8 +54,8 @@ export default function RealisticEarth() {
 
   return (
     <>
-      {/* Earth sphere */}
-      <mesh ref={earthRef} material={earthMaterial}>
+      {/* Earth sphere with optimized geometry */}
+      <mesh ref={earthRef} material={earthMaterial} receiveShadow castShadow>
         <sphereGeometry args={[2, 64, 64]} />
       </mesh>
       
@@ -65,6 +78,16 @@ export default function RealisticEarth() {
       <mesh position={[0.3, 1.9, 0.5]}>
         <sphereGeometry args={[0.05, 16, 16]} />
         <meshBasicMaterial color={0x00ff00} />
+      </mesh>
+      
+      {/* Add a subtle glow effect */}
+      <mesh>
+        <sphereGeometry args={[2.15, 32, 32]} />
+        <meshBasicMaterial 
+          color={0x0088ff} 
+          transparent={true} 
+          opacity={0.03} 
+        />
       </mesh>
     </>
   );

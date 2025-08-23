@@ -7,13 +7,44 @@ export default {
   theme: {
     extend: {
       colors: {
-        'primary': '#00ffff', // Cyan
-        'secondary': '#0088ff', // Blue
+        'border': 'hsl(215 27% 16%)',
+        'input': 'hsl(215 27% 16%)',
+        'ring': 'hsl(180 100% 50%)',
+        'background': 'hsl(230 35% 7%)',
+        'foreground': 'hsl(0 0% 98%)',
+        'primary': {
+          DEFAULT: 'hsl(180 100% 50%)', // Cyan
+          foreground: 'hsl(0 0% 9%)',
+        },
+        'secondary': {
+          DEFAULT: 'hsl(210 100% 50%)', // Blue
+          foreground: 'hsl(0 0% 98%)',
+        },
+        'muted': {
+          DEFAULT: 'hsl(215 27% 16%)',
+          foreground: 'hsl(217.9 10.6% 64.9%)',
+        },
+        'accent': {
+          DEFAULT: 'hsl(215 27% 16%)',
+          foreground: 'hsl(0 0% 98%)',
+        },
+        'card': {
+          DEFAULT: 'hsl(230 25% 12%)',
+          foreground: 'hsl(0 0% 98%)',
+        },
+        'popover': {
+          DEFAULT: 'hsl(230 25% 12%)',
+          foreground: 'hsl(0 0% 98%)',
+        },
+        'destructive': {
+          DEFAULT: 'hsl(0 62.8% 30.6%)',
+          foreground: 'hsl(0 0% 98%)',
+        },
         'hisl-dark': '#0a0a0f',
         'hisl-gray': '#1a1a2e',
         'success': '#00ff00', // Green
         'warning': '#ffff00', // Yellow
-        'error': '#808080', // Gray
+        'error': '#ff0000', // Red
       },
       fontFamily: {
         'mono': ['JetBrains Mono', 'monospace'],
@@ -31,6 +62,11 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
         },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
       },
     },
   },

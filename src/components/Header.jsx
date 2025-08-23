@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { Menu, X, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import HISLLogo from '../assets/HISL_LOGO.PNG';
 
 export default function Header() {
@@ -38,18 +39,20 @@ export default function Header() {
             whileHover={{ scale: 1.05 }}
             className="flex items-center gap-3"
           >
-            <img 
-              src={HISLLogo}
-              alt="HISL Logo" 
-              className="h-10 w-10"
-            />
-            <div>
-              <h1 className="text-xl font-bold text-gradient">HISL CONTROL</h1>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-xs font-mono text-green-500">SYSTEM ONLINE</span>
+            <Link to="/" className="flex items-center gap-3">
+              <img 
+                src={HISLLogo}
+                alt="HISL Logo" 
+                className="h-16 w-auto" // Increased size from h-10
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-gradient">HISL CONTROL</h1>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="text-xs font-mono text-green-500">SYSTEM ONLINE</span>
+                </div>
               </div>
-            </div>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -58,10 +61,10 @@ export default function Header() {
               <Button
                 key={item.name}
                 variant="ghost"
-                className="font-mono text-sm hover:text-primary"
+                className="font-mono text-sm hover:text-primary text-foreground" // Added text-foreground for light text
                 asChild
               >
-                <a href={item.href}>{item.name}</a>
+                <Link to={item.href}>{item.name}</Link>
               </Button>
             ))}
           </nav>
@@ -73,7 +76,7 @@ export default function Header() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="font-mono hover:glow"
+                  className="font-mono hover:glow text-foreground" // Added text-foreground for light text
                   asChild
                 >
                   <a 
@@ -87,7 +90,7 @@ export default function Header() {
                   </a>
                 </Button>
                 {link.tooltip && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-card border border-border rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-card border border-border rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none text-foreground">
                     {link.tooltip}
                   </div>
                 )}
@@ -99,7 +102,7 @@ export default function Header() {
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden"
+            className="md:hidden text-foreground" // Added text-foreground for light text
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -119,10 +122,10 @@ export default function Header() {
                 <Button
                   key={item.name}
                   variant="ghost"
-                  className="justify-start font-mono"
+                  className="justify-start font-mono text-foreground" // Added text-foreground for light text
                   asChild
                 >
-                  <a href={item.href}>{item.name}</a>
+                  <Link to={item.href}>{item.name}</Link>
                 </Button>
               ))}
               <div className="flex gap-2 pt-2">
@@ -131,7 +134,7 @@ export default function Header() {
                     key={link.name}
                     variant="outline"
                     size="sm"
-                    className="font-mono flex-1"
+                    className="font-mono flex-1 text-foreground" // Added text-foreground for light text
                     asChild
                   >
                     <a 

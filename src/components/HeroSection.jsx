@@ -36,6 +36,19 @@ export default function HeroSection() {
         ))}
       </div>
 
+      {/* Background Bridge Banner with parallax effect */}
+      <motion.div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(${BannerImage})`,
+          backgroundAttachment: 'fixed',
+          backgroundSize: 'cover'
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.15 }}
+        transition={{ duration: 1.5 }}
+      />
+
       <div className="container mx-auto px-4 text-center relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -95,7 +108,7 @@ export default function HeroSection() {
           >
             <Button
               size="lg"
-              className="font-mono text-lg px-8 py-4 glow hover:glow-blue"
+              className="font-mono text-lg px-8 py-4 glow hover:glow-blue text-primary-foreground"
               asChild
             >
               <a 
@@ -112,7 +125,7 @@ export default function HeroSection() {
             <Button
               variant="outline"
               size="lg"
-              className="font-mono text-lg px-8 py-4 hover:glow"
+              className="font-mono text-lg px-8 py-4 hover:glow text-foreground"
               asChild
             >
               <a 
@@ -129,7 +142,7 @@ export default function HeroSection() {
             <Button
               variant="secondary"
               size="lg"
-              className="font-mono text-lg px-8 py-4 hover:glow-blue"
+              className="font-mono text-lg px-8 py-4 hover:glow-blue text-secondary-foreground"
               onClick={() => document.getElementById('agent-fleet')?.scrollIntoView({ behavior: 'smooth' })}
             >
               Deploy Agent
@@ -156,14 +169,6 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Background Image Overlay */}
-      <div 
-        className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${BannerImage})`
-        }}
-      />
     </section>
   );
 }
