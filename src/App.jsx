@@ -5,7 +5,7 @@ import './App.css';
 // Components
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
-import InteractiveGlobe from './components/InteractiveGlobe';
+import Globe from './components/Globe';
 import AgentCard from './components/AgentCard';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
@@ -138,7 +138,7 @@ function GlobeSection() {
             <div className="text-primary font-mono">Loading Globe...</div>
           </div>
         }>
-          <InteractiveGlobe className="mb-8" />
+          <Globe className="mb-8" />
         </Suspense>
 
         {/* Mythology Explanation */}
