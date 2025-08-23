@@ -1,68 +1,61 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sphere, Text } from '@react-three/drei';
+import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Import raven images directly
 import ravenHuginnImage from '../assets/raven_huginn.png';
 import ravenMuninnImage from '../assets/raven_muninn.png';
-import earthDaymapImage from '../assets/earth_daymap.jpg';
 
-// Raven component that orbits around the globe
-function Raven({ radius = 3, speed = 0.5, offset = 0, name, imagePath }) {
+// Simple raven component
+function Raven({ angle, radius, height, imagePath }) {
   const ravenRef = useRef();
-  
-  useFrame((state) => {
+  const [texture, setTexture] = useState(null);
+
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+    loader.load(imagePath, (loadedTexture) => {
+      setTexture(loadedTexture);
+    });
+  }, [imagePath]);
+
+  useFrame(() => {
     if (ravenRef.current) {
-      const time = state.clock.getElapsedTime() * speed + offset;
-      ravenRef.current.position.x = Math.cos(time) * radius;
-      ravenRef.current.position.z = Math.sin(time) * radius;
-      ravenRef.current.position.y = Math.sin(time * 0.5) * 0.5;
-      
+      const x = Math.sin(angle) * radius;
+      const z = Math.cos(angle) * radius;
+      ravenRef.current.position.set(x, height, z);
       // Make raven look forward in its orbit direction
       ravenRef.current.lookAt(
-        Math.cos(time + 0.1) * radius,
-        ravenRef.current.position.y,
-        Math.sin(time + 0.1) * radius
+        Math.sin(angle + 0.1) * radius,
+        height,
+        Math.cos(angle + 0.1) * radius
       );
     }
   });
 
+  if (!texture) return null; // Don't render until texture is loaded
+
   return (
     <group ref={ravenRef}>
-      {/* Raven sprite using the actual image */}
       <sprite scale={[0.8, 0.8, 1]}>
         <spriteMaterial 
-          map={new THREE.TextureLoader().load(imagePath)}
+          map={texture}
           transparent={true}
           opacity={0.9}
         />
       </sprite>
-      {/* Glow effect */}
-      <pointLight color="#ffd700" intensity={0.3} distance={2} />
-      {/* Name label */}
-      <Text
-        position={[0, -0.6, 0]}
-        fontSize={0.1}
-        color="#00ffff"
-        anchorX="center"
-        anchorY="middle"
-        font="/fonts/mono.woff"
-      >
-        {name}
-      </Text>
     </group>
   );
 }
 
-// Earth globe component
+// Main globe component
 function Earth() {
   const earthRef = useRef();
   const [texture, setTexture] = useState(null);
   
   useEffect(() => {
     const loader = new THREE.TextureLoader();
-    loader.load(earthDaymapImage, (loadedTexture) => {
+    loader.load("/src/assets/earth_daymap.jpg", (loadedTexture) => {
       setTexture(loadedTexture);
     });
   }, []);
@@ -85,88 +78,106 @@ function Earth() {
   );
 }
 
-// Prompt flow visualization
-function PromptFlow() {
-  const [particles, setParticles] = useState([]);
+// Main scene component
+function Scene() {
+  const [ravens, setRavens] = useState([]);
   
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newParticle = {
-        id: Date.now(),
-        position: [Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5],
-        target: [0, 0, 0],
-        life: 1.0
-      };
-      
-      setParticles(prev => [...prev.slice(-20), newParticle]);
-    }, 1000);
-    
-    return () => clearInterval(interval);
+    // Create ravens with random positions
+    const newRavens = [
+      {
+        id: 1,
+        angle: Math.random() * Math.PI * 2,
+        radius: 3.5,
+        height: 0.5,
+        speed: 0.01,
+        imagePath: ravenHuginnImage
+      },
+      {
+        id: 2,
+        angle: Math.random() * Math.PI * 2,
+        radius: 4,
+        height: -0.5,
+        speed: 0.008,
+        imagePath: ravenMuninnImage
+      }
+    ];
+    setRavens(newRavens);
   }, []);
   
+  // Animation loop for ravens
+  useFrame(() => {
+    setRavens(prev => prev.map(raven => ({
+      ...raven,
+      angle: raven.angle + raven.speed
+    })));
+  });
+
   return (
     <>
-      {particles.map(particle => (
-        <mesh key={particle.id} position={particle.position}>
-          <sphereGeometry args={[0.02]} />
-          <meshBasicMaterial color="#00ffff" transparent opacity={particle.life} />
-        </mesh>
+      <ambientLight intensity={0.3} />
+      <pointLight position={[10, 10, 10]} intensity={1.5} />
+      <Earth />
+      <Stars radius={100} depth={50} count={5000} factor={4} />
+      {ravens.map(raven => (
+        <Raven key={raven.id} {...raven} />
       ))}
     </>
   );
 }
 
-// Main Globe Scene
-function GlobeScene() {
-  return (
-    <>
-      {/* Lighting */}
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[10, 10, 5]} intensity={1} />
-      <pointLight position={[-10, -10, -5]} color="#0088ff" intensity={0.5} />
-      
-      {/* Earth */}
-      <Earth />
-      
-      {/* Ravens - Huginn and Muninn */}
-      <Raven 
-        radius={3.5} 
-        speed={0.3} 
-        offset={0} 
-        name="Huginn (Thought)" 
-        imagePath={ravenHuginnImage}
-      />
-      <Raven 
-        radius={4} 
-        speed={0.25} 
-        offset={Math.PI} 
-        name="Muninn (Memory)" 
-        imagePath={ravenMuninnImage}
-      />
-      
-      {/* Prompt Flow */}
-      <PromptFlow />
-      
-      {/* Controls */}
-      <OrbitControls 
-        enableZoom={true}
-        enablePan={false}
-        enableRotate={true}
-        autoRotate={true}
-        autoRotateSpeed={0.5}
-        minDistance={5}
-        maxDistance={15}
-      />
-    </>
-  );
-}
-
-// Main Globe Component
+// Main component with error boundary and WebGL check
 export default function Globe({ className = "" }) {
+  const [hasWebGL, setHasWebGL] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Check if WebGL is supported
+    try {
+      const canvas = document.createElement("canvas");
+      const supported = !!window.WebGLRenderingContext && 
+        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+      setHasWebGL(supported);
+    } catch (e) {
+      setHasWebGL(false);
+    }
+    
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <div className="loading">Loading globe...</div>;
+  }
+
+  if (!hasWebGL) {
+    return (
+      <div className="error">
+        <h2>WebGL Not Supported</h2>
+        <p>Your browser does not support WebGL, which is required to display the 3D globe.</p>
+        <p>Please try updating your browser or use a different browser that supports WebGL.</p>
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full h-[600px] ${className}`}>
-      <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
-        <GlobeScene />
+      <Canvas
+        camera={{ position: [0, 0, 8], fov: 75 }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(new THREE.Color("#020617"));
+        }}
+      >
+        <Suspense fallback={null}>
+          <Scene />
+        </Suspense>
+        <OrbitControls
+          enableZoom={true}
+          enablePan={true}
+          enableRotate={true}
+          zoomSpeed={0.6}
+          panSpeed={0.5}
+          rotateSpeed={0.8}
+        />
       </Canvas>
     </div>
   );
