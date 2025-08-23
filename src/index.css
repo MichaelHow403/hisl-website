@@ -1,0 +1,40 @@
+/* Import JetBrains Mono font */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-hisl-dark text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent;
+  }
+  
+  .glow {
+    @apply shadow-[0_0_15px_rgba(0,255,255,0.5)];
+  }
+  
+  .glow-blue {
+    @apply shadow-[0_0_15px_rgba(0,136,255,0.5)];
+  }
+  
+  .glass {
+    @apply bg-black bg-opacity-20 backdrop-blur-md border border-white border-opacity-10;
+  }
+  
+  .cyber-grid {
+    background-image: linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
