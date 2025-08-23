@@ -8,6 +8,7 @@
   NODE_ENV = "production"
   NPM_CONFIG_PRODUCTION = "false"
   VITE_APP_NAME = "HISL Control"
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
 
 [context.production]
   command = "npm install --legacy-peer-deps && npm run build"
