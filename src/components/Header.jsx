@@ -20,7 +20,7 @@ export default function Header() {
     },
     { 
       name: 'Substack', 
-      href: 'https://hisl.substack.com' 
+      href: "https://substack.com/@michaelhowardmciob?utm_source=user-menu" 
     }
   ];
 

@@ -115,7 +115,7 @@ export default function HeroSection() {
               asChild
             >
               <a 
-                href="https://hisl.substack.com" 
+                href="https://substack.com/@michaelhowardmciob?utm_source=user-menu" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
