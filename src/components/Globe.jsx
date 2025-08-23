@@ -3,8 +3,13 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Sphere, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Import raven images directly
+import ravenHuginnImage from '../assets/raven_huginn.png';
+import ravenMuninnImage from '../assets/raven_muninn.png';
+import earthDaymapImage from '../assets/earth_daymap.jpg';
+
 // Raven component that orbits around the globe
-function Raven({ radius = 3, speed = 0.5, offset = 0, name }) {
+function Raven({ radius = 3, speed = 0.5, offset = 0, name, imagePath }) {
   const ravenRef = useRef();
   
   useFrame((state) => {
@@ -25,22 +30,27 @@ function Raven({ radius = 3, speed = 0.5, offset = 0, name }) {
 
   return (
     <group ref={ravenRef}>
-      {/* Simple raven representation */}
-      <mesh>
-        <boxGeometry args={[0.1, 0.05, 0.2]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
-      {/* Wings */}
-      <mesh position={[-0.08, 0, 0]} rotation={[0, 0, Math.PI / 6]}>
-        <boxGeometry args={[0.15, 0.02, 0.08]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
-      <mesh position={[0.08, 0, 0]} rotation={[0, 0, -Math.PI / 6]}>
-        <boxGeometry args={[0.15, 0.02, 0.08]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
+      {/* Raven sprite using the actual image */}
+      <sprite scale={[0.8, 0.8, 1]}>
+        <spriteMaterial 
+          map={new THREE.TextureLoader().load(imagePath)}
+          transparent={true}
+          opacity={0.9}
+        />
+      </sprite>
       {/* Glow effect */}
-      <pointLight color="#00ffff" intensity={0.5} distance={2} />
+      <pointLight color="#ffd700" intensity={0.3} distance={2} />
+      {/* Name label */}
+      <Text
+        position={[0, -0.6, 0]}
+        fontSize={0.1}
+        color="#00ffff"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/mono.woff"
+      >
+        {name}
+      </Text>
     </group>
   );
 }
@@ -52,7 +62,7 @@ function Earth() {
   
   useEffect(() => {
     const loader = new THREE.TextureLoader();
-    loader.load('/src/assets/earth_daymap.jpg', (loadedTexture) => {
+    loader.load(earthDaymapImage, (loadedTexture) => {
       setTexture(loadedTexture);
     });
   }, []);
@@ -119,8 +129,20 @@ function GlobeScene() {
       <Earth />
       
       {/* Ravens - Huginn and Muninn */}
-      <Raven radius={3.5} speed={0.3} offset={0} name="Huginn" />
-      <Raven radius={4} speed={0.25} offset={Math.PI} name="Muninn" />
+      <Raven 
+        radius={3.5} 
+        speed={0.3} 
+        offset={0} 
+        name="Huginn (Thought)" 
+        imagePath={ravenHuginnImage}
+      />
+      <Raven 
+        radius={4} 
+        speed={0.25} 
+        offset={Math.PI} 
+        name="Muninn (Memory)" 
+        imagePath={ravenMuninnImage}
+      />
       
       {/* Prompt Flow */}
       <PromptFlow />
@@ -149,4 +171,5 @@ export default function Globe({ className = "" }) {
     </div>
   );
 }
+
 
