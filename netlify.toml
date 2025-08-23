@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
   publish = "dist"
 
 [build.environment]
@@ -10,13 +10,13 @@
   VITE_DEEPSEEK_API_KEY = "sk-3bfecdbb798e441e82899dfabfd39ec6"
 
 [context.production]
-  command = "npm ci && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
 
 [context.deploy-preview]
-  command = "npm ci && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
 
 [context.branch-deploy]
-  command = "npm ci && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
 
 [[redirects]]
   from = "/*"
