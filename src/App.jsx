@@ -8,6 +8,8 @@ import MiniGlobeTeaser from './components/MiniGlobeTeaser';
 import WorkingGlobePage from './components/WorkingGlobePage';
 import AboutPage from './components/AboutPage';
 import DeployPage from './components/DeployPage';
+import KnowledgePage from './components/KnowledgePage';
+import StrategyPage from './components/StrategyPage';
 
 // Simple working homepage with Hero Clarity
 function HomePage() {
@@ -289,8 +291,8 @@ function App() {
           <Route path="/globe" element={<WorkingGlobePage />} />
           <Route path="/deploy" element={<DeployPage />} />
           <Route path="/projects" element={<SimplePage title="Projects" description="Explore our AI projects and case studies." />} />
-          <Route path="/knowledge" element={<SimplePage title="Knowledge Base" description="Access documentation and resources." />} />
-          <Route path="/strategy" element={<SimplePage title="Strategy" description="Strategic AI implementation guidance." />} />
+          <Route path="/knowledge" element={<KnowledgePage />} />
+          <Route path="/strategy" element={<StrategyPage />} />
           <Route path="/contact" element={<SimplePage title="Contact Us" description="Get in touch with our team." />} />
         </Routes>
       </div>
