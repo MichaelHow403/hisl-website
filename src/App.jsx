@@ -5,12 +5,15 @@ import './App.css';
 // Import refined components
 import RefinedHeader from './components/RefinedHeader';
 import RefinedHeroSection from './components/RefinedHeroSection';
+import ParallaxHeroSection from './components/ParallaxHeroSection';
 import EnhancedInteractiveGlobe from './components/EnhancedInteractiveGlobe';
 import AgentFleet from './components/AgentFleet';
 import RefinedFooter from './components/RefinedFooter';
 
 // Import pages
 import AppleStyleAboutPage from './components/AppleStyleAboutPage';
+import ImmersiveGlobePage from './components/ImmersiveGlobePage';
+import AgentDeploymentPlatform from './components/AgentDeploymentPlatform';
 import GlobePage from './components/GlobePage';
 import DeployPage from './components/DeployPage';
 import ProjectsHub from './components/ProjectsHub';
@@ -22,7 +25,7 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
       <RefinedHeader logoVariant="HISL" />
-      <RefinedHeroSection />
+      <ParallaxHeroSection />
       
       {/* Globe Section */}
       <section className="py-20 relative">
@@ -69,8 +72,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AppleStyleAboutPage />} />
-        <Route path="/globe" element={<GlobePage />} />
-        <Route path="/deploy" element={<DeployPage />} />
+        <Route path="/globe" element={<ImmersiveGlobePage />} />
+        <Route path="/deploy" element={<AgentDeploymentPlatform />} />
         <Route path="/projects" element={<ProjectsHub />} />
         <Route path="/knowledge" element={<KnowledgeBase />} />
         <Route path="/strategy" element={<StrategyLive />} />
