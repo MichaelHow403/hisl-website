@@ -8,6 +8,7 @@ import RefinedFooter from './components/RefinedFooter';
 import ParallaxHeroSection from './components/ParallaxHeroSection';
 import EnhancedInteractiveGlobe from './components/EnhancedInteractiveGlobe';
 import AgentFleet from './components/AgentFleet';
+// import IntegAIChat from './components/IntegAIChat';
 
 // Import pages
 import AppleStyleAboutPage from './components/AppleStyleAboutPage';
@@ -78,6 +79,9 @@ function App() {
           <Route path="/knowledge" element={<KnowledgeBase />} />
           <Route path="/strategy" element={<StrategyLive />} />
         </Routes>
+        
+        {/* IntegAI Chat - Temporarily disabled for testing */}
+        {/* <IntegAIChat /> */}
       </div>
     </Router>
   );
