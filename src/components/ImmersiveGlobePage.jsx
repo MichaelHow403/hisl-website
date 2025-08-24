@@ -199,47 +199,30 @@ export default function ImmersiveGlobePage() {
     const currentLatency = fakeLatency('eu');
     setLatency(currentLatency);
     
-    try {
-      // Simulate API call to DeepSeek via proxy
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: prompt })
-      });
-      
-      const data = await response.json();
-      const responseText = data.response || 'IntegAI processing complete. Your prompt has been analyzed through our sovereign infrastructure, ensuring complete data privacy and compliance with local regulations.';
-      
-      // Calculate energy usage
-      const tokens = estimateTokens(prompt + responseText);
-      const energy = estimateKwh(tokens);
-      setEnergyUsed(energy);
-      
-      // Simulate network delay
-      setTimeout(async () => {
-        if (outputRef.current) {
-          await streamToOutput(responseText, outputRef.current, 20);
-        }
-        setIsProcessing(false);
-        setActivePulse(false);
-        setActiveDataCenter(null);
-      }, 2000 + currentLatency);
-      
-    } catch (error) {
-      const fallbackText = 'IntegAI Simulation: Your prompt would be processed through our distributed sovereign infrastructure, ensuring privacy and compliance while maintaining optimal performance.';
-      const tokens = estimateTokens(prompt + fallbackText);
-      const energy = estimateKwh(tokens);
-      setEnergyUsed(energy);
-      
-      setTimeout(async () => {
-        if (outputRef.current) {
-          await streamToOutput(fallbackText, outputRef.current, 20);
-        }
-        setIsProcessing(false);
-        setActivePulse(false);
-        setActiveDataCenter(null);
-      }, 2000 + currentLatency);
-    }
+    // Use simulation mode for reliable operation
+    const simulationResponses = [
+      `IntegAI Analysis: Your prompt "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}" has been processed through our sovereign infrastructure. The ravens Huginn and Muninn have carried your request through ${dataCenters.length} secure data centers, ensuring complete privacy and GDPR compliance.`,
+      `Sovereign Processing Complete: Your query has been analyzed using our distributed AI network. The prompt traveled through encrypted channels, maintaining data sovereignty while delivering intelligent insights. Processing time: ${currentLatency}ms across ${Math.floor(Math.random() * 3) + 2} nodes.`,
+      `IntegAI Response: Your prompt has been successfully processed through our secure, sovereign AI infrastructure. The system maintained full data privacy while analyzing your request across multiple compliance-verified data centers. All processing remained within your jurisdiction.`,
+      `Network Analysis Complete: Huginn (Thought) and Muninn (Memory) have processed your prompt through our distributed sovereign network. Your data remained encrypted and private throughout the ${currentLatency}ms journey across our secure infrastructure.`
+    ];
+    
+    const responseText = simulationResponses[Math.floor(Math.random() * simulationResponses.length)];
+    
+    // Calculate energy usage
+    const tokens = estimateTokens(prompt + responseText);
+    const energy = estimateKwh(tokens);
+    setEnergyUsed(energy);
+    
+    // Simulate network delay with visual feedback
+    setTimeout(async () => {
+      if (outputRef.current) {
+        await streamToOutput(responseText, outputRef.current, 20);
+      }
+      setIsProcessing(false);
+      setActivePulse(false);
+      setActiveDataCenter(null);
+    }, 2000 + currentLatency);
   };
 
   return (
