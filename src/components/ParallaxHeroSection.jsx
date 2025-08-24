@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Leaf } from 'lucide-react';
 import EnergyAwarenessOverlay from './EnergyAwarenessOverlay';
+import MiniGlobe from './MiniGlobe';
 
 export default function ParallaxHeroSection() {
   const [showEnergyOverlay, setShowEnergyOverlay] = useState(false);
@@ -212,6 +213,24 @@ export default function ParallaxHeroSection() {
                   📝 Join the Waitlist
                 </span>
               </motion.button>
+            </motion.div>
+
+            {/* Mini Globe Preview */}
+            <motion.div 
+              className="flex justify-center mb-8"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1.2 }}
+            >
+              <div className="w-64 h-64">
+                <Suspense fallback={
+                  <div className="w-full h-full flex items-center justify-center bg-gray-900/30 rounded-xl border border-cyan-500/20">
+                    <div className="text-cyan-400">Loading Globe...</div>
+                  </div>
+                }>
+                  <MiniGlobe />
+                </Suspense>
+              </div>
             </motion.div>
 
             {/* Energy Awareness Button */}

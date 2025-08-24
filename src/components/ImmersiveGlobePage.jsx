@@ -1,11 +1,13 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, Sphere, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion } from 'framer-motion';
 import RefinedHeader from './RefinedHeader';
 import RefinedFooter from './RefinedFooter';
+import EnhancedGlobe from './EnhancedGlobe';
 import { streamToOutput, estimateKwh, fakeLatency, estimateTokens } from '../utils/streamUtils';
+import { estimateEnergyKJ, estimateLatency, generateRouteHops } from '../utils/energyLatencyEstimator';
 
 // Raven component that orbits around the Earth
 function Raven({ radius = 3, speed = 0.5, offset = 0, ravenType = 'huginn' }) {
@@ -166,7 +168,22 @@ export default function ImmersiveGlobePage() {
   const [energyUsed, setEnergyUsed] = useState(0);
   const [activeDCs, setActiveDCs] = useState(12);
   const [latency, setLatency] = useState(0);
+  const [dataCenters, setDataCenters] = useState([]);
+  const [showPoints, setShowPoints] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [hoveredDC, setHoveredDC] = useState(null);
   const outputRef = useRef(null);
+
+  // Load data centers
+  useEffect(() => {
+    fetch('/data/datacenters.json')
+      .then(res => res.json())
+      .then(data => {
+        setDataCenters(data);
+        setActiveDCs(data.length);
+      })
+      .catch(err => console.error('Failed to load data centers:', err));
+  }, []);
 
   const handleSubmitPrompt = async () => {
     if (!prompt.trim()) return;
@@ -260,50 +277,87 @@ export default function ImmersiveGlobePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
             {/* Globe Visualization */}
-            <div className="h-96 lg:h-[500px] bg-black/20 rounded-2xl overflow-hidden border border-cyan-500/20">
-              <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
-                <ambientLight intensity={0.2} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
-                <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4444ff" />
-                
-                <Earth />
-                
-                {/* Ravens orbiting */}
-                <Raven radius={3.5} speed={0.3} offset={0} ravenType="huginn" />
-                <Raven radius={4} speed={0.25} offset={Math.PI} ravenType="muninn" />
-                
-                {/* Data center points */}
-                {dataCenters.map((dc, index) => (
-                  <DataCenterPoint 
-                    key={dc.name}
-                    position={dc.position}
-                    name={dc.name}
-                    active={activeDataCenter === index}
+            <div className="relative h-96 lg:h-[500px] bg-black/20 rounded-2xl overflow-hidden border border-cyan-500/20">
+              {/* Fullscreen Toggle */}
+              <button
+                onClick={() => {
+                  const element = document.querySelector('.globe-container');
+                  if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                  }
+                }}
+                className="absolute top-4 right-4 z-10 p-2 bg-gray-900/80 hover:bg-gray-800 border border-cyan-500/30 rounded-lg text-cyan-400 hover:text-cyan-300 transition-colors"
+                title="View in fullscreen (ESC to exit)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </button>
+              
+              <div className="globe-container w-full h-full">
+                <Suspense fallback={<div className="flex items-center justify-center h-full text-cyan-400">Loading Globe...</div>}>
+                  <EnhancedGlobe 
+                    datacenters={dataCenters}
+                    showPoints={showPoints}
+                    showHeatmap={showHeatmap}
+                    isAnimating={activePulse}
+                    onDataCenterHover={setHoveredDC}
                   />
-                ))}
-                
-                {/* Pulse lines when active */}
-                {activePulse && activeDataCenter !== null && (
-                  <PulseLine 
-                    start={new THREE.Vector3(-3, 0, 3)}
-                    end={new THREE.Vector3(...dataCenters[activeDataCenter].position)}
-                    active={activePulse}
-                  />
-                )}
-                
-                <OrbitControls enableZoom={true} enablePan={false} />
-              </Canvas>
+                </Suspense>
+              </div>
             </div>
 
             {/* Interaction Panel */}
             <div className="space-y-6">
               <div className="bg-gray-900/50 backdrop-blur-sm border border-cyan-500/20 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-cyan-400 mb-6">
-                  IntegAI Simulation Mode
-                </h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-cyan-400">
+                    IntegAI Simulation Mode
+                  </h3>
+                  <img 
+                    src="/assets/integai-logo.png" 
+                    alt="IntegAI - AI with Soul" 
+                    className="h-8 w-auto"
+                  />
+                </div>
                 <p className="text-gray-300 mb-6">
                   Powered by API proxy - Experience how your prompts travel through sovereign infrastructure
                 </p>
+
+                {/* Data Center Overlay Controls */}
+                <div className="mb-6 p-4 bg-gray-800/30 rounded-lg">
+                  <h4 className="text-sm font-semibold text-white mb-3">Data Center Overlay</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setShowPoints(!showPoints)}
+                      className={`px-3 py-1 text-xs rounded-full transition-all ${
+                        showPoints 
+                          ? 'bg-cyan-500 text-white' 
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Jurisdictions
+                    </button>
+                    <button
+                      onClick={() => setShowHeatmap(!showHeatmap)}
+                      className={`px-3 py-1 text-xs rounded-full transition-all ${
+                        showHeatmap 
+                          ? 'bg-yellow-500 text-white' 
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      Density
+                    </button>
+                  </div>
+                  
+                  {/* Tooltip for hovered data center */}
+                  {hoveredDC && (
+                    <div className="mt-3 p-2 bg-gray-900/80 rounded text-xs">
+                      <div className="text-cyan-400 font-semibold">{hoveredDC.name}</div>
+                      <div className="text-gray-300">{hoveredDC.jurisdiction} • {hoveredDC.region}</div>
+                    </div>
+                  )}
+                </div>
                 
                 <div className="space-y-4">
                   <textarea
@@ -327,6 +381,24 @@ export default function ImmersiveGlobePage() {
                       '🚀 Send to Ravens'
                     )}
                   </button>
+                  
+                  {/* Energy & Latency Chips */}
+                  {prompt.trim() && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <div className="px-3 py-1 bg-yellow-900/30 border border-yellow-500/30 rounded-full text-xs">
+                        <span className="text-yellow-400">⚡ Energy:</span>
+                        <span className="text-white ml-1">
+                          {estimateEnergyKJ(estimateTokens(prompt), 2)} kJ
+                        </span>
+                      </div>
+                      <div className="px-3 py-1 bg-green-900/30 border border-green-500/30 rounded-full text-xs">
+                        <span className="text-green-400">📡 Latency:</span>
+                        <span className="text-white ml-1">
+                          ~{estimateLatency(2)}ms
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Output Panel with Typewriter Effect */}
@@ -391,17 +463,25 @@ export default function ImmersiveGlobePage() {
                 </div>
               </div>
 
-              {/* Raven Status */}
+              {/* Raven Status with Brand Icons */}
               <div className="bg-gray-900/30 backdrop-blur-sm border border-gray-600/20 rounded-xl p-6">
                 <h4 className="text-lg font-semibold text-white mb-4">Raven Status</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl mb-1">🐦</div>
+                    <img 
+                      src="/assets/raven_huginn.png" 
+                      alt="Huginn raven — Thought & Memory" 
+                      className="w-8 h-8 mx-auto mb-2 opacity-80"
+                    />
                     <div className="text-sm text-red-400 font-semibold">Huginn</div>
                     <div className="text-xs text-gray-400">Thought & Memory</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl mb-1">🐦</div>
+                    <img 
+                      src="/assets/raven_muninn.png" 
+                      alt="Muninn raven — Mind & Intelligence" 
+                      className="w-8 h-8 mx-auto mb-2 opacity-80"
+                    />
                     <div className="text-sm text-cyan-400 font-semibold">Muninn</div>
                     <div className="text-xs text-gray-400">Mind & Intelligence</div>
                   </div>
@@ -410,11 +490,11 @@ export default function ImmersiveGlobePage() {
                 <div className="mt-4 pt-4 border-t border-gray-600/20">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-400">Active Data Centers:</span>
-                    <span className="text-cyan-400">{dataCenters.length}</span>
+                    <span className="text-cyan-400">{activeDCs}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm mt-2">
                     <span className="text-gray-400">Network Latency:</span>
-                    <span className="text-green-400">12ms</span>
+                    <span className="text-green-400">{latency > 0 ? `${latency}ms` : '12ms'}</span>
                   </div>
                 </div>
               </div>
