@@ -4,11 +4,10 @@ import './App.css';
 
 // Import refined components
 import RefinedHeader from './components/RefinedHeader';
-import RefinedHeroSection from './components/RefinedHeroSection';
+import RefinedFooter from './components/RefinedFooter';
 import ParallaxHeroSection from './components/ParallaxHeroSection';
 import EnhancedInteractiveGlobe from './components/EnhancedInteractiveGlobe';
 import AgentFleet from './components/AgentFleet';
-import RefinedFooter from './components/RefinedFooter';
 
 // Import pages
 import AppleStyleAboutPage from './components/AppleStyleAboutPage';
@@ -20,7 +19,7 @@ import ProjectsHub from './components/ProjectsHub';
 import KnowledgeBase from './components/KnowledgeBase';
 import StrategyLive from './components/StrategyLive';
 
-// Home Page Component
+// Home Page Component - Complete version
 function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
@@ -54,7 +53,7 @@ function HomePage() {
               </span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Sovereign AI agents operating across critical infrastructure domains
+              Sovereign AI agents designed for regulated industries
             </p>
           </div>
           <AgentFleet />
@@ -69,15 +68,17 @@ function HomePage() {
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AppleStyleAboutPage />} />
-        <Route path="/globe" element={<ImmersiveGlobePage />} />
-        <Route path="/deploy" element={<AgentDeploymentPlatform />} />
-        <Route path="/projects" element={<ProjectsHub />} />
-        <Route path="/knowledge" element={<KnowledgeBase />} />
-        <Route path="/strategy" element={<StrategyLive />} />
-      </Routes>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AppleStyleAboutPage />} />
+          <Route path="/globe" element={<ImmersiveGlobePage />} />
+          <Route path="/deploy" element={<AgentDeploymentPlatform />} />
+          <Route path="/projects" element={<ProjectsHub />} />
+          <Route path="/knowledge" element={<KnowledgeBase />} />
+          <Route path="/strategy" element={<StrategyLive />} />
+        </Routes>
+      </div>
     </Router>
   );
 }

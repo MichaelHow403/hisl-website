@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertCircle, Loader, Shield, Zap, Brain, Building, FileText, Wrench } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader, Shield, Zap, Brain, Building, FileText, Wrench, Sparkles, TrendingUp } from 'lucide-react';
 import RefinedHeader from './RefinedHeader';
 import RefinedFooter from './RefinedFooter';
+import { getAgentRecommendation, assessCompliance, calculateROI } from '../utils/openaiService';
 
 // Predefined agent types with their capabilities
 const agentTypes = {
@@ -161,6 +162,12 @@ export default function AgentDeploymentPlatform() {
   const [auditHash, setAuditHash] = useState('');
   const [buildPreview, setBuildPreview] = useState(null);
   const [showContactForm, setShowContactForm] = useState(false);
+  
+  // OpenAI-powered features
+  const [aiRecommendation, setAiRecommendation] = useState(null);
+  const [complianceAssessment, setComplianceAssessment] = useState(null);
+  const [roiCalculation, setRoiCalculation] = useState(null);
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
 
   const handleAnswerChange = (questionId, value) => {
     setAnswers(prev => ({
@@ -171,53 +178,68 @@ export default function AgentDeploymentPlatform() {
 
   const analyzeRequirements = async () => {
     setIsAnalyzing(true);
+    setIsLoadingAI(true);
     setCurrentStep('analysis');
     
-    // Simulate API call to analyze requirements
     try {
-      const response = await fetch('/api/analyze-requirements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers })
-      });
+      // Get AI-powered recommendation
+      const industry = answers.industry || 'Technology';
+      const primaryNeed = answers.primaryNeed || 'Process Automation';
+      const dataVolume = answers.dataVolume || 'Medium (1-100GB/day)';
+      const complianceReqs = answers.complianceReqs || [];
+      const integrationNeeds = answers.integrationNeeds || [];
+
+      // Parallel AI analysis
+      const [recommendation, compliance, roi] = await Promise.all([
+        getAgentRecommendation(industry, primaryNeed, dataVolume, complianceReqs, integrationNeeds),
+        assessCompliance(industry, ['Business Data', 'User Data'], 'EU', ['Basic Privacy Policy']),
+        calculateROI(5000, 100, 20, industry)
+      ]);
+
+      setAiRecommendation(recommendation);
+      setComplianceAssessment(compliance);
+      setRoiCalculation(roi);
+
+      // Set traditional recommendation based on AI
+      setRecommendedAgent(recommendation.agentName);
+      setFeasibilityScore(recommendation.confidence);
       
-      // Simulate analysis delay
+      // Generate audit hash
+      const auditData = JSON.stringify({ answers, recommendation, timestamp: Date.now() });
+      const hash = btoa(auditData).substring(0, 16);
+      setAuditHash(hash);
+      
       setTimeout(() => {
-        // Simple logic to recommend agent based on answers
-        let recommended = 'ProcessFlow'; // default
-        
-        if (answers.primaryNeed === 'Document Processing') {
-          recommended = 'DocuGenie';
-        } else if (answers.industry === 'Construction') {
-          recommended = 'BuildLens';
-        } else if (answers.complianceReqs && answers.complianceReqs.length > 0) {
-          recommended = 'ComplianceCore';
-        } else if (answers.primaryNeed === 'Data Security') {
-          recommended = 'DataSentry';
-        } else if (answers.primaryNeed === 'Business Intelligence') {
-          recommended = 'InsightEngine';
-        }
-        
-        setRecommendedAgent(recommended);
-        setFeasibilityScore(Math.floor(Math.random() * 20) + 80); // 80-100%
-        
-        // Generate audit hash
-        const hash = btoa(JSON.stringify(answers) + Date.now()).substring(0, 16);
-        setAuditHash(hash);
-        
-        setIsAnalyzing(false);
         setCurrentStep('results');
-      }, 3000);
+        setIsAnalyzing(false);
+        setIsLoadingAI(false);
+      }, 2000);
       
     } catch (error) {
-      // Fallback simulation
+      console.error('AI Analysis Error:', error);
+      
+      // Fallback to simple logic
+      let recommended = 'ProcessFlow';
+      
+      if (answers.primaryNeed === 'Document Processing') {
+        recommended = 'DocuGenie';
+      } else if (answers.industry === 'Construction') {
+        recommended = 'BuildLens';
+      } else if (answers.complianceReqs && answers.complianceReqs.length > 0) {
+        recommended = 'ComplianceCore';
+      } else if (answers.primaryNeed === 'Data Security') {
+        recommended = 'DataSentry';
+      }
+
+      setRecommendedAgent(recommended);
+      setFeasibilityScore(85);
+      setAuditHash('FALLBACK_' + Date.now().toString(36));
+      
       setTimeout(() => {
-        setRecommendedAgent('ProcessFlow');
-        setFeasibilityScore(85);
-        setAuditHash('SIM' + Math.random().toString(36).substring(2, 10).toUpperCase());
-        setIsAnalyzing(false);
         setCurrentStep('results');
-      }, 3000);
+        setIsAnalyzing(false);
+        setIsLoadingAI(false);
+      }, 2000);
     }
   };
 
