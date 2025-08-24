@@ -28,22 +28,17 @@ export default function ParallaxHeroSection() {
     }
   };
 
-  // Poetry content
+  // HISL Manifesto Poetry content
   const poemLines = [
-    "In circuits deep and silicon dreams,",
-    "Where data flows like mountain streams,",
-    "We build not just with steel and stone,",
-    "But with a soul that's truly our own.",
+    "Then prove we now with best endeavour,",
+    "What from our efforts yet may spring,",
+    "He justly is despised who never,",
+    "Did thought to aid his labours bring.",
     "",
-    "Each prompt a bridge from mind to mind,",
-    "Each response both swift and kind,",
-    "In sovereignty we place our trust,",
-    "For AI that serves, not rules, is just.",
-    "",
-    "From construction sites to starlit skies,",
-    "We lift our tools, we lift our eyes,",
-    "Building futures, line by line,",
-    "Where human hearts and AI shine."
+    "For this is Art's true indication,",
+    "When skill is minister to thought,",
+    "When types that are the mind's creation,",
+    "The hand to perfect form has wrought."
   ];
 
   return (
@@ -294,15 +289,11 @@ export default function ParallaxHeroSection() {
         </motion.div>
       </section>
 
-      {/* Why We Build Section with Poetry */}
-      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900/20 to-gray-900">
-        {/* Raven watermark background */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-5">
-          <img 
-            src="/assets/raven_huginn.png" 
-            alt="Raven" 
-            className="w-96 h-96 object-contain"
-          />
+      {/* HISL Manifesto Section with Poetry */}
+      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-gray-100 via-blue-50 to-gray-100">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-400/10"></div>
         </div>
 
         <div className="container mx-auto px-6 relative z-10">
@@ -314,31 +305,44 @@ export default function ParallaxHeroSection() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-6xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                Why We Build
+              <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                Our Manifesto
               </span>
             </h2>
           </motion.div>
 
-          {/* Poetry Section */}
+          {/* Poetry Section with Reaching for Stars Background */}
           <motion.div 
             ref={poemRef}
-            className="max-w-4xl mx-auto text-center mb-16"
+            className="max-w-4xl mx-auto text-center mb-16 relative"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 1 }}
           >
-            <div className="bg-gray-900/30 backdrop-blur-sm border border-cyan-500/20 rounded-2xl p-12">
-              <div className="space-y-4 text-lg md:text-xl leading-relaxed">
+            {/* Reaching for the Stars Background Image */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-20 z-0">
+              <motion.img 
+                src="/assets/reach_for_the_stars.png" 
+                alt="Reach for the Stars" 
+                className="w-80 h-80 md:w-96 md:h-96 object-contain"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={isInView ? { opacity: 0.2, scale: 1 } : {}}
+                transition={{ duration: 1.5, delay: 0.5 }}
+              />
+            </div>
+
+            {/* Poetry Content */}
+            <div className="relative z-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-12 shadow-lg">
+              <div className="space-y-6 text-xl md:text-2xl leading-relaxed font-serif">
                 {poemLines.map((line, index) => (
                   <motion.div
                     key={index}
-                    className={line === "" ? "h-4" : "text-gray-300"}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    className={line === "" ? "h-4" : "text-gray-800 italic"}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ 
                       duration: 0.8, 
-                      delay: index * 0.2,
+                      delay: index * 0.3,
                       ease: "easeOut"
                     }}
                   >
@@ -346,46 +350,19 @@ export default function ParallaxHeroSection() {
                   </motion.div>
                 ))}
               </div>
-            </div>
-          </motion.div>
-
-          {/* Reach for the Stars Image */}
-          <motion.div
-            className="text-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <div className="relative inline-block">
-              <img 
-                src="/assets/reach_for_the_stars.png" 
-                alt="Reach for the Stars" 
-                className="w-64 h-64 md:w-80 md:h-80 object-contain mx-auto"
-              />
+              
+              {/* Attribution Quote */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-full"
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  opacity: [0.3, 0.6, 0.3]
-                }}
-                transition={{ 
-                  duration: 3, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-              />
+                className="mt-12 pt-8 border-t border-gray-300/50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 3 }}
+              >
+                <p className="text-lg text-gray-600 italic font-light">
+                  "We reach not just for the stars, but for the soul within the machine."
+                </p>
+              </motion.div>
             </div>
-            
-            <motion.p 
-              className="mt-8 text-xl text-gray-300 italic"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 1 }}
-              viewport={{ once: true }}
-            >
-              "We reach not just for the stars, but for the soul within the machine."
-            </motion.p>
           </motion.div>
         </div>
       </section>
