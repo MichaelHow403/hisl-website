@@ -9,12 +9,64 @@ function Earth() {
   const meshRef = useRef();
   const cloudsRef = useRef();
   
-  // Load Earth textures
-  const [dayTexture, nightTexture, cloudsTexture] = useLoader(THREE.TextureLoader, [
-    '/assets/earth_daymap.jpg',
-    '/assets/earth_nightmap.jpg', 
-    '/assets/earth_clouds.png'
-  ]);
+  // Load Earth textures with error handling
+  const [dayTexture, setDayTexture] = useState(null);
+  const [cloudsTexture, setCloudsTexture] = useState(null);
+
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+    
+    // Load day texture
+    loader.load(
+      '/assets/earth_daymap.jpg',
+      (texture) => {
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        setDayTexture(texture);
+      },
+      undefined,
+      (error) => {
+        console.warn('Failed to load day texture, using fallback');
+        // Create blue fallback texture
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+        gradient.addColorStop(0, '#4A90E2');
+        gradient.addColorStop(1, '#1E3A8A');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 256, 256);
+        const fallbackTexture = new THREE.CanvasTexture(canvas);
+        setDayTexture(fallbackTexture);
+      }
+    );
+    
+    // Load clouds texture
+    loader.load(
+      '/assets/earth_clouds.png',
+      (texture) => {
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        setCloudsTexture(texture);
+      },
+      undefined,
+      (error) => {
+        console.warn('Failed to load clouds texture, using fallback');
+        // Create white cloud fallback
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        for (let i = 0; i < 20; i++) {
+          ctx.beginPath();
+          ctx.arc(Math.random() * 256, Math.random() * 256, Math.random() * 30 + 10, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        const fallbackTexture = new THREE.CanvasTexture(canvas);
+        setCloudsTexture(fallbackTexture);
+      }
+    );
+  }, []);
 
   useFrame((state) => {
     if (meshRef.current) {
@@ -27,38 +79,44 @@ function Earth() {
     }
   });
 
+  if (!dayTexture) {
+    return (
+      <mesh>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial color="#4A90E2" />
+      </mesh>
+    );
+  }
+
   return (
     <group>
       {/* Main Earth sphere */}
       <mesh ref={meshRef}>
         <sphereGeometry args={[1, 64, 64]} />
-        <meshPhongMaterial
-          map={dayTexture}
-          roughness={1.0}
-          metalness={0.0}
-        />
+        <meshBasicMaterial map={dayTexture} />
       </mesh>
       
       {/* Clouds layer */}
-      <mesh ref={cloudsRef}>
-        <sphereGeometry args={[1.015, 32, 32]} />
-        <meshPhongMaterial
-          map={cloudsTexture}
-          transparent={true}
-          opacity={0.3}
-          depthWrite={false}
-        />
-      </mesh>
+      {cloudsTexture && (
+        <mesh ref={cloudsRef}>
+          <sphereGeometry args={[1.015, 32, 32]} />
+          <meshBasicMaterial
+            map={cloudsTexture}
+            transparent={true}
+            opacity={0.3}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
       
       {/* Atmosphere glow */}
       <mesh>
-        <sphereGeometry args={[1.05, 32, 32]} />
+        <sphereGeometry args={[1.05, 16, 16]} />
         <meshBasicMaterial
           color="#00ffff"
           transparent={true}
           opacity={0.1}
           side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
@@ -66,69 +124,32 @@ function Earth() {
   );
 }
 
-// Raven component using gold raven sprites
-function Raven({ radius, speed, inclination, name, imagePath }) {
-  const groupRef = useRef();
-  const spriteRef = useRef();
-  const [texture, setTexture] = useState(null);
-
-  useEffect(() => {
-    const loader = new THREE.TextureLoader();
-    loader.load(
-      imagePath,
-      (loadedTexture) => {
-        setTexture(loadedTexture);
-      },
-      undefined,
-      (error) => {
-        console.warn(`Failed to load raven texture: ${imagePath}`, error);
-        // Create fallback golden dot
-        const canvas = document.createElement('canvas');
-        canvas.width = 32;
-        canvas.height = 32;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFD700';
-        ctx.beginPath();
-        ctx.arc(16, 16, 12, 0, Math.PI * 2);
-        ctx.fill();
-        const fallbackTexture = new THREE.CanvasTexture(canvas);
-        setTexture(fallbackTexture);
-      }
-    );
-  }, [imagePath]);
+// Simplified Raven component
+function Raven({ radius, speed, inclination, name, color }) {
+  const meshRef = useRef();
 
   useFrame((state) => {
-    if (groupRef.current) {
+    if (meshRef.current) {
       const time = state.clock.getElapsedTime() * speed;
-      
-      // Apply inclination to the orbit
-      groupRef.current.rotation.z = inclination;
       
       // Orbit around Earth
       const x = Math.cos(time) * radius;
       const z = Math.sin(time) * radius;
-      const y = Math.sin(time * 0.5) * 0.2; // Slight vertical movement
+      const y = Math.sin(time * 0.5) * 0.2 + Math.sin(inclination) * 0.3;
       
-      if (spriteRef.current) {
-        spriteRef.current.position.set(x, y, z);
-        // Make sprite always face camera
-        spriteRef.current.lookAt(state.camera.position);
-      }
+      meshRef.current.position.set(x, y, z);
     }
   });
 
-  if (!texture) return null;
-
   return (
-    <group ref={groupRef}>
-      <sprite ref={spriteRef} scale={[0.15, 0.15, 1]}>
-        <spriteMaterial
-          map={texture}
-          transparent={true}
-          alphaTest={0.1}
-        />
-      </sprite>
-    </group>
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[0.05, 8, 8]} />
+      <meshBasicMaterial 
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.5}
+      />
+    </mesh>
   );
 }
 
@@ -137,18 +158,17 @@ function Scene() {
   return (
     <>
       {/* Lighting setup */}
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={0.6} />
       <directionalLight
         position={[5, 3, 5]}
-        intensity={1.2}
-        castShadow={false}
+        intensity={0.8}
       />
       
       {/* Subtle starfield */}
       <Stars
         radius={50}
         depth={50}
-        count={1000}
+        count={500}
         factor={2}
         saturation={0.1}
         fade={true}
@@ -163,14 +183,14 @@ function Scene() {
         speed={0.05}
         inclination={0}
         name="Huginn"
-        imagePath="/assets/ravens/huginn.png"
+        color="#FFD700"
       />
       <Raven
         radius={1.35}
         speed={0.04}
         inclination={Math.PI * 0.15}
         name="Muninn"
-        imagePath="/assets/ravens/muninn.png"
+        color="#FFA500"
       />
     </>
   );
@@ -233,12 +253,10 @@ const MiniGlobeTeaser = () => {
           gl={{
             antialias: true,
             alpha: true,
-            outputColorSpace: 'srgb',
-            toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.1
+            powerPreference: "high-performance"
           }}
         >
-          <Suspense fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
             <Scene />
           </Suspense>
           
