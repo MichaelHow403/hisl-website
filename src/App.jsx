@@ -6,7 +6,7 @@ import './App.css';
 import RefinedHeader from './components/RefinedHeader';
 import RefinedFooter from './components/RefinedFooter';
 import ParallaxHeroSection from './components/ParallaxHeroSection';
-import EnhancedInteractiveGlobe from './components/EnhancedInteractiveGlobe';
+import MiniGlobeTeaser from './components/MiniGlobeTeaser';
 import AgentFleet from './components/AgentFleet';
 // import IntegAIChat from './components/IntegAIChat';
 
@@ -40,7 +40,10 @@ function HomePage() {
               Watch Huginn & Muninn carry your prompts through the sovereign AI infrastructure
             </p>
           </div>
-          <EnhancedInteractiveGlobe />
+          <div className="text-center text-white">
+            <p className="text-lg">Mini Globe Loading...</p>
+            <p className="text-sm text-gray-400 mt-2">Enhanced globe component coming soon</p>
+          </div>
         </div>
       </section>
 
