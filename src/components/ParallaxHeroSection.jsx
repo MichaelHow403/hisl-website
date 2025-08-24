@@ -314,35 +314,38 @@ export default function ParallaxHeroSection() {
           {/* Poetry Section with Reaching for Stars Background */}
           <motion.div 
             ref={poemRef}
-            className="max-w-4xl mx-auto text-center mb-16 relative"
+            className="max-w-6xl mx-auto text-center mb-16 relative min-h-screen flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 1 }}
+            style={{
+              backgroundImage: `url('/assets/reach_for_the_stars.png')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundAttachment: 'fixed'
+            }}
           >
-            {/* Reaching for the Stars Background Image */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-20 z-0">
-              <motion.img 
-                src="/assets/reach_for_the_stars.png" 
-                alt="Reach for the Stars" 
-                className="w-80 h-80 md:w-96 md:h-96 object-contain"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={isInView ? { opacity: 0.2, scale: 1 } : {}}
-                transition={{ duration: 1.5, delay: 0.5 }}
-              />
-            </div>
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black/40 z-0"></div>
 
             {/* Poetry Content */}
-            <div className="relative z-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-12 shadow-lg">
-              <div className="space-y-6 text-xl md:text-2xl leading-relaxed font-serif">
+            <div className="relative z-10 max-w-4xl mx-auto px-8">
+              <div className="space-y-8 text-2xl md:text-3xl lg:text-4xl leading-relaxed" style={{ fontFamily: 'Times New Roman, serif' }}>
                 {poemLines.map((line, index) => (
                   <motion.div
                     key={index}
-                    className={line === "" ? "h-4" : "text-gray-800 italic"}
-                    initial={{ opacity: 0, y: 20 }}
+                    className={line === "" ? "h-6" : "text-yellow-400 font-medium text-shadow-lg"}
+                    style={{ 
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(255,215,0,0.3)',
+                      color: '#FFD700',
+                      fontWeight: '500'
+                    }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={isInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ 
-                      duration: 0.8, 
-                      delay: index * 0.3,
+                      duration: 1, 
+                      delay: index * 0.4,
                       ease: "easeOut"
                     }}
                   >
@@ -353,12 +356,19 @@ export default function ParallaxHeroSection() {
               
               {/* Attribution Quote */}
               <motion.div
-                className="mt-12 pt-8 border-t border-gray-300/50"
-                initial={{ opacity: 0, y: 20 }}
+                className="mt-16 pt-8"
+                initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 1, delay: 3 }}
+                transition={{ duration: 1.2, delay: 4 }}
               >
-                <p className="text-lg text-gray-600 italic font-light">
+                <p 
+                  className="text-xl md:text-2xl text-yellow-300 italic font-light"
+                  style={{ 
+                    fontFamily: 'Times New Roman, serif',
+                    textShadow: '1px 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(255,215,0,0.2)',
+                    color: '#FFED4E'
+                  }}
+                >
                   "We reach not just for the stars, but for the soul within the machine."
                 </p>
               </motion.div>
