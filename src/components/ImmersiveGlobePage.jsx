@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { motion } from 'framer-motion';
 import RefinedHeader from './RefinedHeader';
 import RefinedFooter from './RefinedFooter';
+import { streamToOutput, estimateKwh, fakeLatency, estimateTokens } from '../utils/streamUtils';
 
 // Raven component that orbits around the Earth
 function Raven({ radius = 3, speed = 0.5, offset = 0, ravenType = 'huginn' }) {
@@ -161,13 +162,25 @@ export default function ImmersiveGlobePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activePulse, setActivePulse] = useState(false);
   const [activeDataCenter, setActiveDataCenter] = useState(null);
+  const [showOutput, setShowOutput] = useState(false);
+  const [energyUsed, setEnergyUsed] = useState(0);
+  const [activeDCs, setActiveDCs] = useState(12);
+  const [latency, setLatency] = useState(0);
+  const outputRef = useRef(null);
 
   const handleSubmitPrompt = async () => {
     if (!prompt.trim()) return;
     
     setIsProcessing(true);
     setActivePulse(true);
-    setActiveDataCenter(Math.floor(Math.random() * dataCenters.length));
+    setShowOutput(true);
+    setResponse('');
+    
+    // Select random data center and calculate latency
+    const dcIndex = Math.floor(Math.random() * dataCenters.length);
+    setActiveDataCenter(dcIndex);
+    const currentLatency = fakeLatency('eu');
+    setLatency(currentLatency);
     
     try {
       // Simulate API call to DeepSeek via proxy
@@ -178,21 +191,37 @@ export default function ImmersiveGlobePage() {
       });
       
       const data = await response.json();
+      const responseText = data.response || 'IntegAI processing complete. Your prompt has been analyzed through our sovereign infrastructure, ensuring complete data privacy and compliance with local regulations.';
       
-      setTimeout(() => {
-        setResponse(data.response || 'IntegAI processing complete. Your prompt has been analyzed through our sovereign infrastructure.');
+      // Calculate energy usage
+      const tokens = estimateTokens(prompt + responseText);
+      const energy = estimateKwh(tokens);
+      setEnergyUsed(energy);
+      
+      // Simulate network delay
+      setTimeout(async () => {
+        if (outputRef.current) {
+          await streamToOutput(responseText, outputRef.current, 20);
+        }
         setIsProcessing(false);
         setActivePulse(false);
         setActiveDataCenter(null);
-      }, 3000);
+      }, 2000 + currentLatency);
       
     } catch (error) {
-      setTimeout(() => {
-        setResponse('IntegAI Simulation: Your prompt would be processed through our distributed sovereign infrastructure, ensuring privacy and compliance.');
+      const fallbackText = 'IntegAI Simulation: Your prompt would be processed through our distributed sovereign infrastructure, ensuring privacy and compliance while maintaining optimal performance.';
+      const tokens = estimateTokens(prompt + fallbackText);
+      const energy = estimateKwh(tokens);
+      setEnergyUsed(energy);
+      
+      setTimeout(async () => {
+        if (outputRef.current) {
+          await streamToOutput(fallbackText, outputRef.current, 20);
+        }
         setIsProcessing(false);
         setActivePulse(false);
         setActiveDataCenter(null);
-      }, 3000);
+      }, 2000 + currentLatency);
     }
   };
 
@@ -300,22 +329,71 @@ export default function ImmersiveGlobePage() {
                   </button>
                 </div>
                 
-                {response && (
+                {/* Output Panel with Typewriter Effect */}
+                {showOutput && (
                   <motion.div 
                     className="mt-6 p-4 bg-gray-800/30 border border-cyan-500/30 rounded-lg"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <h4 className="text-cyan-400 font-semibold mb-2">Response:</h4>
-                    <p className="text-gray-300">{response}</p>
+                    <h4 className="text-cyan-400 font-semibold mb-2 flex items-center">
+                      <span className="mr-2">📡</span>
+                      Response Stream:
+                    </h4>
+                    <div 
+                      ref={outputRef}
+                      className="text-gray-300 min-h-[60px] font-mono text-sm leading-relaxed"
+                    >
+                      {isProcessing && (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                          <span className="text-cyan-400">Connecting to sovereign network...</span>
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </div>
 
-              {/* Network Status */}
+              {/* Energy & Network Monitoring Card */}
               <div className="bg-gray-900/30 backdrop-blur-sm border border-gray-600/20 rounded-xl p-6">
-                <h4 className="text-lg font-semibold text-white mb-4">Network Status</h4>
+                <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <span className="mr-2">⚡</span>
+                  Energy & Network
+                </h4>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Active Data Centers:</span>
+                    <span className="text-cyan-400 font-semibold">{activeDCs}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Estimated Latency:</span>
+                    <span className="text-green-400 font-semibold">
+                      {latency > 0 ? `${latency}ms` : '--'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Energy per Prompt:</span>
+                    <span className="text-yellow-400 font-semibold">
+                      {energyUsed > 0 ? `${energyUsed} kWh` : '--'}
+                    </span>
+                  </div>
+                  
+                  <div className="pt-3 border-t border-gray-600/20">
+                    <p className="text-xs text-gray-500 italic">
+                      * Simulated values for demonstration
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Raven Status */}
+              <div className="bg-gray-900/30 backdrop-blur-sm border border-gray-600/20 rounded-xl p-6">
+                <h4 className="text-lg font-semibold text-white mb-4">Raven Status</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
                     <div className="text-2xl mb-1">🐦</div>

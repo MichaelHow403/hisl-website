@@ -31,6 +31,8 @@ export default function AppleStyleAboutPage() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, ease: "easeOut" }}
+            role="heading"
+            aria-level="1"
           >
             <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
               About
@@ -41,8 +43,10 @@ export default function AppleStyleAboutPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+            role="text"
+            aria-describedby="about-description"
           >
-            The minds behind sovereign AI infrastructure
+            <span id="about-description">The minds behind sovereign AI infrastructure</span>
           </motion.p>
         </motion.div>
         
@@ -82,9 +86,14 @@ function MichaelHowardSection() {
             <div className="relative overflow-hidden rounded-3xl">
               <img 
                 src="/assets/michael-howard-profile.png" 
-                alt="Michael Howard"
+                alt="Michael Howard, Founder of HISL and creator of IntegAI sovereign AI platform"
                 className="w-full h-[600px] object-cover"
+                role="img"
+                aria-describedby="michael-image-description"
               />
+              <span id="michael-image-description" className="sr-only">
+                Professional portrait of Michael Howard, founder and visionary behind HISL's sovereign AI infrastructure
+              </span>
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
             
@@ -115,6 +124,9 @@ function MichaelHowardSection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 1, delay: 0.4 }}
+                role="heading"
+                aria-level="2"
+                id="michael-howard-heading"
               >
                 Michael Howard
               </motion.h2>
@@ -123,8 +135,10 @@ function MichaelHowardSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 1, delay: 0.6 }}
+                role="text"
+                aria-describedby="michael-title"
               >
-                Founder & Visionary
+                <span id="michael-title">Founder & Visionary</span>
               </motion.p>
             </div>
 

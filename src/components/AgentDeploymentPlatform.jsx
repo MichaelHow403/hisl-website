@@ -153,12 +153,14 @@ function AgentCard({ agent, isRecommended = false }) {
 }
 
 export default function AgentDeploymentPlatform() {
-  const [currentStep, setCurrentStep] = useState('assessment'); // assessment, analysis, results
+  const [currentStep, setCurrentStep] = useState('assessment'); // assessment, analysis, results, buildPreview
   const [answers, setAnswers] = useState({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [recommendedAgent, setRecommendedAgent] = useState(null);
   const [feasibilityScore, setFeasibilityScore] = useState(null);
   const [auditHash, setAuditHash] = useState('');
+  const [buildPreview, setBuildPreview] = useState(null);
+  const [showContactForm, setShowContactForm] = useState(false);
 
   const handleAnswerChange = (questionId, value) => {
     setAnswers(prev => ({
@@ -216,6 +218,84 @@ export default function AgentDeploymentPlatform() {
         setIsAnalyzing(false);
         setCurrentStep('results');
       }, 3000);
+    }
+  };
+
+  const generateBuildPreview = async () => {
+    setIsAnalyzing(true);
+    
+    try {
+      // Use API proxy to generate build preview
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: `Generate a build preview for ${recommendedAgent} agent for ${answers.industry} industry with ${answers.primaryNeed} needs and ${answers.complianceReqs?.join(', ')} compliance requirements.`
+        })
+      });
+      
+      const data = await response.json();
+      
+      // Generate comprehensive build preview
+      const preview = {
+        agent: agentTypes[recommendedAgent],
+        deploymentModel: answers.complianceReqs?.includes('GDPR') || answers.complianceReqs?.includes('HIPAA') ? 'On-Premises' : 'Sovereign Cloud',
+        complianceAnchors: answers.complianceReqs || ['ISO 27001'],
+        integrationMap: {
+          primary: answers.integrationNeeds || ['ERP Systems'],
+          dataFlow: 'Bidirectional encrypted channels',
+          apis: 'RESTful + GraphQL endpoints'
+        },
+        timeline: {
+          discovery: '1-2 weeks',
+          development: agentTypes[recommendedAgent]?.deploymentTime || '4-6 weeks',
+          testing: '1-2 weeks',
+          deployment: '1 week'
+        },
+        nextSteps: [
+          'Technical requirements gathering',
+          'Infrastructure assessment',
+          'Security compliance review',
+          'Integration planning',
+          'Development kickoff'
+        ],
+        estimatedCost: answers.dataVolume === 'Enterprise (> 1TB/day)' ? '$50k-100k' : '$25k-50k'
+      };
+      
+      setBuildPreview(preview);
+      setCurrentStep('buildPreview');
+      setIsAnalyzing(false);
+      
+    } catch (error) {
+      // Fallback static preview
+      const preview = {
+        agent: agentTypes[recommendedAgent],
+        deploymentModel: 'Sovereign Cloud',
+        complianceAnchors: ['ISO 27001', 'SOC 2'],
+        integrationMap: {
+          primary: ['ERP Systems', 'Document Management'],
+          dataFlow: 'Bidirectional encrypted channels',
+          apis: 'RESTful + GraphQL endpoints'
+        },
+        timeline: {
+          discovery: '1-2 weeks',
+          development: '4-6 weeks',
+          testing: '1-2 weeks',
+          deployment: '1 week'
+        },
+        nextSteps: [
+          'Technical requirements gathering',
+          'Infrastructure assessment',
+          'Security compliance review',
+          'Integration planning',
+          'Development kickoff'
+        ],
+        estimatedCost: '$25k-50k'
+      };
+      
+      setBuildPreview(preview);
+      setCurrentStep('buildPreview');
+      setIsAnalyzing(false);
     }
   };
 
@@ -437,12 +517,200 @@ export default function AgentDeploymentPlatform() {
                   🔄 New Assessment
                 </button>
                 <button
+                  onClick={generateBuildPreview}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                >
+                  🏗️ Generate Build Preview
+                </button>
+                <button
                   onClick={() => window.location.href = '/contact'}
                   className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-300"
                 >
                   📞 Contact for Deployment
                 </button>
               </div>
+            </motion.div>
+          )}
+
+          {/* Build Preview Phase */}
+          {currentStep === 'buildPreview' && buildPreview && (
+            <motion.div 
+              className="max-w-6xl mx-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Build Preview Header */}
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold text-purple-400 mb-4">
+                  🏗️ Build Preview
+                </h2>
+                <p className="text-gray-300 text-lg">
+                  Comprehensive deployment plan for your {buildPreview.agent.name} agent
+                </p>
+                <div className="mt-4 bg-purple-900/20 border border-purple-500/20 rounded-lg p-3 inline-block">
+                  <span className="text-sm text-purple-300">Generated simulation — IntegAI build preview</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                {/* Deployment Model */}
+                <div className="bg-gray-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center">
+                    <Building className="w-6 h-6 mr-2" />
+                    Deployment Model
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Model:</span>
+                      <span className="text-white font-semibold">{buildPreview.deploymentModel}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Estimated Cost:</span>
+                      <span className="text-green-400 font-semibold">{buildPreview.estimatedCost}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Compliance Anchors */}
+                <div className="bg-gray-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center">
+                    <Shield className="w-6 h-6 mr-2" />
+                    Compliance Anchors
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {buildPreview.complianceAnchors.map((anchor, index) => (
+                      <span key={index} className="bg-green-900/30 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
+                        {anchor}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Integration Map */}
+                <div className="bg-gray-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center">
+                    <Zap className="w-6 h-6 mr-2" />
+                    Integration Map
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-gray-400 text-sm">Primary Systems:</span>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {buildPreview.integrationMap.primary.map((system, index) => (
+                          <span key={index} className="bg-cyan-900/30 text-cyan-400 px-2 py-1 rounded text-sm">
+                            {system}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 text-sm">Data Flow:</span>
+                      <p className="text-white text-sm mt-1">{buildPreview.integrationMap.dataFlow}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 text-sm">APIs:</span>
+                      <p className="text-white text-sm mt-1">{buildPreview.integrationMap.apis}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timeline */}
+                <div className="bg-gray-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center">
+                    <FileText className="w-6 h-6 mr-2" />
+                    Project Timeline
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Discovery:</span>
+                      <span className="text-white">{buildPreview.timeline.discovery}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Development:</span>
+                      <span className="text-white">{buildPreview.timeline.development}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Testing:</span>
+                      <span className="text-white">{buildPreview.timeline.testing}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Deployment:</span>
+                      <span className="text-white">{buildPreview.timeline.deployment}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Next Steps */}
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8 mb-12">
+                <h3 className="text-2xl font-bold text-purple-400 mb-6 flex items-center">
+                  <Wrench className="w-7 h-7 mr-3" />
+                  Next Steps
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {buildPreview.nextSteps.map((step, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </div>
+                      <span className="text-gray-300">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="text-center space-x-4">
+                <button
+                  onClick={() => setCurrentStep('results')}
+                  className="px-6 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition-all duration-300"
+                >
+                  ← Back to Results
+                </button>
+                <button
+                  onClick={() => setShowContactForm(true)}
+                  className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                >
+                  📅 Book a Build Session
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Contact Form Modal */}
+          {showContactForm && (
+            <motion.div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="bg-gray-900 border border-purple-500/20 rounded-2xl p-8 max-w-md w-full"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-2xl font-bold text-purple-400 mb-6">Book a Build Session</h3>
+                <p className="text-gray-300 mb-6">
+                  Ready to start building your {buildPreview?.agent.name} agent? Contact our team to schedule your build session.
+                </p>
+                <div className="space-y-4">
+                  <a 
+                    href="mailto:michael.howard@hisl.ie?subject=Build Session Request - ${buildPreview?.agent.name}"
+                    className="block w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg text-center hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                  >
+                    📧 Email Us
+                  </a>
+                  <button
+                    onClick={() => setShowContactForm(false)}
+                    className="w-full py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition-all duration-300"
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </div>
