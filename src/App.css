@@ -134,3 +134,29 @@
   }
 }
 
+
+/* Radial gradient utility for hero section */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Additional hero enhancements */
+.text-shadow-lg {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(255,215,0,0.3);
+}
+
+/* Focus ring improvements for accessibility */
+.focus\:ring-offset-gray-900:focus {
+  --tw-ring-offset-color: #111827;
+}
+
+
+/* Particle float animation */
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-20px) translateX(10px); }
+  50% { transform: translateY(-10px) translateX(-5px); }
+  75% { transform: translateY(-30px) translateX(15px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
