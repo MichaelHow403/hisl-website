@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Leaf } from 'lucide-react';
 import EnergyAwarenessOverlay from './EnergyAwarenessOverlay';
 import MiniGlobe from './MiniGlobe';
+import AINewsSection from './AINewsSection';
 
 export default function ParallaxHeroSection() {
   const [showEnergyOverlay, setShowEnergyOverlay] = useState(false);
@@ -397,6 +398,9 @@ export default function ParallaxHeroSection() {
       </section>
 
       {/* Energy Awareness Overlay */}
+      {/* AI & Tech News Section */}
+      <AINewsSection />
+
       <EnergyAwarenessOverlay 
         isVisible={showEnergyOverlay}
         onClose={() => setShowEnergyOverlay(false)}
